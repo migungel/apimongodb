@@ -4,14 +4,17 @@ const router = Router();
 const User = require('../models/User');
 const Viviendas = require('../models/Viviendas');
 const Ciudadelas = require('../models/Ciudadelas');
+const Database = require('../models/Database');
 
 const jwt = require('jsonwebtoken');
 
 //router.get('/',(req, res) => res.send('Hello'))
 
 router.post('/signup', async (req, res) =>{
-    const { user, pass } = req.body;
-    const newUser = new User({user, pass});
+    const { user, pass, role, ciudadela, code_villa, name, celular, ci} = req.body;
+    const userIn = await User.findOne({ ci });
+    if(userIn) return res.status(401).send("User exists");
+    const newUser = new User({user, pass, role, ciudadela, code_villa, name, celular, ci});
     await newUser.save();
     const token = jwt.sign({ _id: newUser._id }, 'key');
     res.status(200).json({token})
@@ -54,8 +57,10 @@ router.get('/ciudadelas', (req, res)=>{
 router.put('/users/:id', (req, res)=>{
     let userid = req.params.id;
     let update = req.body;
-    User.findById(userid, update, (err, user) =>{
-        if(err) err.status(500).send({message: `Error al borrar el usuario: ${err}`});
+    User.findByIdAndUpdate(userid, update, (err, userUpdate) =>{
+        if(err) err.status(500).send({message: `Error al actualizar el usuario: ${err}`});
+
+        res.status(200).json({user: userUpdate});
     });
 });
 
@@ -71,14 +76,135 @@ router.delete('/users/:id', (req, res)=>{
             res.status(200).send({message: 'El usuario ha sido eliminado'})
         })
     });
-
-    /*
-    User.findById(req.params.id, (err, user)=>{
-        err && res.status(500).send(err.message);
-        res.status(200).json(user);
-    });
-    */
 });
+
+
+//Viviendas
+router.get('/viviendas', async (req, res)=>{
+    Viviendas.find((err, viviendas)=>{
+        err && res.status(500).send(err.message);
+        res.status(200).json(viviendas);
+    });
+});
+
+//crear viviendas
+router.post('/viviendas', async (req, res)=>{
+    const {manzana, villa, code_villa, ciudadela, descripcion, id_ciudadela, ciudadelaId} = req.body
+    console.log(req.body);
+    const ciud = await Ciudadelas.findById(ciudadelaId);
+    if(code_villa) return res.status(401).send("Villa exists");
+    const newVilla = new Villa({manzana, villa, code_villa, ciudadela, descripcion, id_ciudadela, ciudadelaId: ciud._id});
+    await newUser.save();
+    //Viviendas.find((err, viviendas)=>{
+    //    err && res.status(500).send(err.message);
+    //    res.status(200).json(viviendas);
+    //});
+});
+
+
+
+//Busqueda ci
+router.get("/userci/", (req, res) => {
+    const ci = req.query.ci;
+    var condition = ci ? { ci: { $regex: new RegExp(ci), $options: "i" } } : {};
+
+    User.find(condition, (err, users)=>{
+        err && res.status(500).send(err.message);
+        res.status(200).json(users);
+    });
+  }
+);
+
+
+//Busqueda name
+router.get("/username/", (req, res) => {
+    const user = req.query.user;
+    var condition = user ? { user: { $regex: new RegExp(user), $options: "i" } } : {};
+
+    User.find(condition, (err, users)=>{
+        err && res.status(500).send(err.message);
+        res.status(200).json(users);
+    });
+  
+    //User.find(condition)
+    //  .then(data => {
+    //    res.send(data);
+    //  })
+    //  .catch(err => {
+    //    res.status(500).send({
+    //      message:
+    //        err.message || "Some error occurred while retrieving tutorials."
+    //    });
+    //  });
+  }
+);
+
+//get all database
+router.get('/database', async (req, res)=>{
+    Database.find( async (err, data)=>{
+        err && res.status(500).send(err.message);
+        datauser = await Viviendas.aggregate([
+            {
+                $lookup:{
+                    from: 'users',
+                    localField: 'code_villa',
+                    foreignField: 'code_villa',
+                    as: 'usuarios'
+                }
+            }
+        ]);
+        data = await Database.aggregate([
+            /*{
+                $match: {
+               _id: "post1"}
+            },*/
+            {
+                $lookup:{
+                    from: 'viviendas',
+                    localField: 'code',
+                    foreignField: 'id_ciudadela',
+                    as: 'viviendas'
+                },
+                
+            },
+            { $unwind: {
+                path: "$viviendas",
+                preserveNullAndEmptyArrays: true
+              }
+            },
+            { $lookup:
+                {
+                    from: 'users',
+                    localField: 'viviendas.code_villa',
+                    foreignField: 'code_villa',
+                    as: 'viviendas.users',
+                }
+            },
+            {
+                $group: {
+                    _id: "$_id",
+                    name: { $first: "$name" },
+                    code: { $first: "$code" },
+                    viviendas: { $push: "$viviendas" }
+                }
+            },
+            {
+                $project: {
+                    id: 1,
+                    name: 1,
+                    code: 1,
+                    viviendas: {
+                        $filter: { input: "$viviendas", as: "a", cond: { $ifNull: ["$$a._id", false] } }
+                      } 
+                }
+            },
+        ]);
+        res.status(200).json(data);
+    })//.populate('viviendas');
+    
+    //const data = Database.find({}).populate('viviendas');
+});
+
 
 
 module.exports = router

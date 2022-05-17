@@ -3,9 +3,13 @@ const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
     user: String,
-    pass: String
-    //user: { type: String },
-    //pass: { type: String }
+    pass: String,
+    role: String,
+    ciudadela: String,
+    code_villa: String,
+    name: String,
+    celular: String,
+    ci: String,
 },{
     timestamps: true
 });
