@@ -5,8 +5,7 @@ const dataSchema = new Schema({
     name: String,
     code: String,
     viviendas: [{
-        type: Schema.Types.ObjectId,
-        ref: 'Viviendas'
+        type: Schema.Types.ObjectId
     }]
 });
 

@@ -116,10 +116,10 @@ router.get("/userci/", (req, res) => {
 );
 
 
-//Busqueda name
+//Busqueda usuario por nombre
 router.get("/username/", (req, res) => {
-    const user = req.query.user;
-    var condition = user ? { user: { $regex: new RegExp(user), $options: "i" } } : {};
+    const name = req.query.name;
+    var condition = name ? { name: { $regex: new RegExp(name), $options: "i" } } : {};
 
     User.find(condition, (err, users)=>{
         err && res.status(500).send(err.message);
@@ -139,21 +139,36 @@ router.get("/username/", (req, res) => {
   }
 );
 
+// busqueda vivienda por id_ciudadela
+router.get("/residencias/", (req, res) => {
+    const ciudadela = req.query.ciudadela;
+    console.log(ciudadela);
+    var condition = ciudadela ? { ciudadela: { $regex: new RegExp(ciudadela), $options: "i" } } : {};
+
+    Viviendas.find(condition, (err, viv)=>{
+        err && res.status(500).send(err.message);
+        res.status(200).json(viv);
+    });
+  }
+);
+
+
+
 //get all database
 router.get('/database', async (req, res)=>{
-    Database.find( async (err, data)=>{
+    Ciudadelas.find( async (err, data)=>{
         err && res.status(500).send(err.message);
-        datauser = await Viviendas.aggregate([
-            {
-                $lookup:{
-                    from: 'users',
-                    localField: 'code_villa',
-                    foreignField: 'code_villa',
-                    as: 'usuarios'
-                }
-            }
-        ]);
-        data = await Database.aggregate([
+        //datauser = await Viviendas.aggregate([
+        //    {
+        //        $lookup:{
+        //            from: 'users',
+        //            localField: 'code_villa',
+        //            foreignField: 'code_villa',
+        //            as: 'usuarios'
+        //        }
+        //    }
+        //]);
+        data = await Ciudadelas.aggregate([
             /*{
                 $match: {
                _id: "post1"}
@@ -162,14 +177,14 @@ router.get('/database', async (req, res)=>{
                 $lookup:{
                     from: 'viviendas',
                     localField: 'code',
-                    foreignField: 'id_ciudadela',
+                    foreignField: 'ciudadela',
                     as: 'viviendas'
                 },
                 
             },
             { $unwind: {
                 path: "$viviendas",
-                preserveNullAndEmptyArrays: true
+                preserveNullAndEmptyArrays: false
               }
             },
             { $lookup:
@@ -203,6 +218,63 @@ router.get('/database', async (req, res)=>{
     })//.populate('viviendas');
     
     //const data = Database.find({}).populate('viviendas');
+});
+
+
+router.get('/database/:code', async (req, res)=>{
+    let code = req.params.code;
+    console.log(code);
+    //Viviendas.findById(req.params.id, (err, user)=>{
+    //    err && res.status(500).send(err.message);
+    //    res.status(200).json(user);
+    //});
+    Ciudadelas.find( async (err, data)=>{
+        err && res.status(500).send(err.message);
+        data = await Ciudadelas.aggregate([
+            { $match: { code: code } },
+            {
+                $lookup:{
+                    from: 'viviendas',
+                    localField: 'code',
+                    foreignField: 'id_ciudadela',
+                    as: 'viviendas'
+                },
+                
+            },
+            { $unwind: {
+                path: "$viviendas",
+                preserveNullAndEmptyArrays: false
+              }
+            },
+            { $lookup:
+                {
+                    from: 'users',
+                    localField: 'viviendas.code_villa',
+                    foreignField: 'code_villa',
+                    as: 'viviendas.users',
+                }
+            },
+            {
+                $group: {
+                    _id: "$_id",
+                    name: { $first: "$name" },
+                    code: { $first: "$code" },
+                    viviendas: { $push: "$viviendas" }
+                }
+            },
+            {
+                $project: {
+                    id: 1,
+                    name: 1,
+                    code: 1,
+                    viviendas: {
+                        $filter: { input: "$viviendas", as: "a", cond: { $ifNull: ["$$a._id", false] } }
+                      } 
+                }
+            },
+        ]);
+        res.status(200).json(data);
+    })
 });
 
 
