@@ -1,15 +1,20 @@
+/*
 const { Router } = require('express');
 const router = Router();
 
 const User = require('../models/User');
+const Users = require('./user');
 const Viviendas = require('../models/Viviendas');
 const Ciudadelas = require('../models/Ciudadelas');
 const Database = require('../models/Database');
+const Etapas = require('../models/Etapas');
 
 const jwt = require('jsonwebtoken');
+const Guardias = require('../models/Guardias');
 
 //router.get('/',(req, res) => res.send('Hello'))
 
+//registrarse
 router.post('/signup', async (req, res) =>{
     const { user, pass, role, ciudadela, code_villa, name, celular, ci} = req.body;
     const userIn = await User.findOne({ ci });
@@ -17,17 +22,20 @@ router.post('/signup', async (req, res) =>{
     const newUser = new User({user, pass, role, ciudadela, code_villa, name, celular, ci});
     await newUser.save();
     const token = jwt.sign({ _id: newUser._id }, 'key');
-    res.status(200).json({token})
+    //const id = newUser._id;
+    //res.status(200).json({token, id})
+    res.status(200).json({token});
 });
 
-
+//inicar sesion
 router.post('/signin', async (req, res)=>{
     const {user, pass} = req.body;
     const userIn = await User.findOne({ user });
     if(!userIn) return res.status(401).send("User doesn't exists");
     if(userIn.pass !== pass) return res.status(401).send("Wrong password");
     const token = jwt.sign({ _id: userIn._id }, 'key');
-    res.status(200).json({token})
+    const id = userIn._id;
+    res.status(200).json({token, id});
 });
 
 router.get('/users', (req, res)=>{
@@ -45,6 +53,37 @@ router.get('/users/:id', (req, res)=>{
 });
 
 
+//Etapas
+router.get('/etapas', (req, res)=>{
+    Etapas.find((err, etapas)=>{
+        err && res.status(500).send(err.message);
+        res.status(200).json(etapas);
+    });
+});
+
+//Etapas por ciudadela
+router.get("/etapa/", (req, res) => {
+    const ciudadela = req.query.ciudadela;
+    var condition = ciudadela ? { ciudadela: { $regex: new RegExp(ciudadela), $options: "i" } } : {};
+    console.log(ciudadela);
+
+    Etapas.find(condition, (err, et)=>{
+        err && res.status(500).send(err.message);
+        res.status(200).json(et);
+    });
+  }
+);
+
+//registrar etapas
+router.post('/etapas', async (req, res) =>{
+    const { name, code } = req.body;
+    const etapaIn = await Etapas.findOne({ name });
+    if(etapaIn) return res.status(401).send("Exists");
+    const newEtapa = new Etapa({ name, code, id_ciudadela});
+    await newEtapa.save();
+});
+
+
 //Ciudadelas
 router.get('/ciudadelas', (req, res)=>{
     Ciudadelas.find((err, ciudadelas)=>{
@@ -52,6 +91,18 @@ router.get('/ciudadelas', (req, res)=>{
         res.status(200).json(ciudadelas);
     });
 });
+
+//Ciudadelas por code
+router.get('/ciudadela/', (req, res)=>{
+    const code = req.query.code;
+    var condition = code ? { code: { $regex: new RegExp(code), $options: "i" } } : {};
+
+    Ciudadelas.find(condition, (err, ciudadela)=>{
+        err && res.status(500).send(err.message);
+        res.status(200).json(ciudadela);
+    });
+});
+
 
 //update user
 router.put('/users/:id', (req, res)=>{
@@ -103,7 +154,7 @@ router.post('/viviendas', async (req, res)=>{
 
 
 
-//Busqueda ci
+//Busqueda por ci
 router.get("/userci/", (req, res) => {
     const ci = req.query.ci;
     var condition = ci ? { ci: { $regex: new RegExp(ci), $options: "i" } } : {};
@@ -153,6 +204,39 @@ router.get("/residencias/", (req, res) => {
 );
 
 
+//Guardias
+router.get('/guardias', (req, res)=>{
+    Guardias.find((err, guardias)=>{
+        err && res.status(500).send(err.message);
+        res.status(200).json(guardias);
+    });
+});
+
+
+//Busqueda guardias por nombre
+router.get("/guards/", (req, res) => {
+    const name = req.query.name;
+    var condition = name ? { name: { $regex: new RegExp(name), $options: "i" } } : {};
+
+    Guardias.find(condition, (err, guardias)=>{
+        err && res.status(500).send(err.message);
+        res.status(200).json(guardias);
+    });
+  
+    //User.find(condition)
+    //  .then(data => {
+    //    res.send(data);
+    //  })
+    //  .catch(err => {
+    //    res.status(500).send({
+    //      message:
+    //        err.message || "Some error occurred while retrieving tutorials."
+    //    });
+    //  });
+  }
+);
+
+
 
 //get all database
 router.get('/database', async (req, res)=>{
@@ -169,10 +253,10 @@ router.get('/database', async (req, res)=>{
         //    }
         //]);
         data = await Ciudadelas.aggregate([
-            /*{
-                $match: {
-               _id: "post1"}
-            },*/
+            //{
+            //    $match: {
+            //   _id: "post1"}
+            //},
             {
                 $lookup:{
                     from: 'viviendas',
@@ -280,3 +364,4 @@ router.get('/database/:code', async (req, res)=>{
 
 
 module.exports = router
+*/
