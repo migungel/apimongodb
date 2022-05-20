@@ -7,6 +7,7 @@ const Etapas = require('./routes/etapas');
 const Ciudadelas = require('./routes/ciudadelas');
 const Viviendas = require('./routes/viviendas');
 const Guardias = require('./routes/guardias');
+const Visitantes = require('./routes/visitante');
 
 require('./database');
 
@@ -21,6 +22,7 @@ app.use(api + '/etapas', Etapas);
 app.use(api + '/ciudadelas', Ciudadelas);
 app.use(api + '/viviendas', Viviendas);
 app.use(api + '/guardias', Guardias);
+app.use(api + '/visitantes', Visitantes);
 
 app.listen(3000);
 console.log('server on port', 3000)

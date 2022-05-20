@@ -9,6 +9,6 @@ router.get('/all', viviendaController.findAllViviendas);
 router.post('/registrar', viviendaController.createViviendas);
 
 //busqueda viviendas por su ciudadelas
-router.get("/viviendas", viviendaController.findViviendaByCiudadela);
+router.get("/ciudadela", viviendaController.findViviendaByCiudadela);
 
 module.exports = router;

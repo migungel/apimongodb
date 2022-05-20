@@ -20,6 +20,7 @@ const iniciarSesion = async (req, res)=>{
     res.status(200).json({token, id});
 };
 
+//todos los usuarios
 const findUserById = async (req, res)=>{
     const idUser = req.params.id;
     const residenteIn = await Residentes.findOne({ _id: idUser });

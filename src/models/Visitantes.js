@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const viviendaSchema = new Schema({
+const visitanteSchema = new Schema({
     id_residente: String,
     name: String,
     cedula: String,
@@ -9,8 +9,9 @@ const viviendaSchema = new Schema({
     placa: String,
     ingreso: Date,
     salida: Date,
+    state: Boolean,
 },{
     timestamps: true
 });
 
-module.exports = mongoose.model('Viviendas', viviendaSchema);
+module.exports = mongoose.model('Visitantes', visitanteSchema);

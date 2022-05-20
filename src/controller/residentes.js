@@ -1,17 +1,6 @@
 //const mongoose = require('mongoose');
 const Residente = require('../models/Residentes');
 
-//inicar sesion
-//const iniciarSesion = async (req, res)=>{
-//    const {user, pass} = req.body;
-//    const residenteIn = await Residente.findOne({ user });
-//    if(!userIn) return res.status(401).send("User doesn't exists");
-//    if(userIn.pass !== pass) return res.status(401).send("Wrong password");
-//    const token = jwt.sign({ _id: userIn._id }, 'key');
-//    const id = userIn._id;
-//    res.status(200).json({token, id});
-//};
-
 //actualizar residente
 const actualizaResi = (req, res)=>{
     let residenteid = req.params.id;
