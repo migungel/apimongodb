@@ -6,6 +6,9 @@ const router = express.Router();
 router.get('/all', ciudadelasController.findAllCiudadelas);
 
 //ciudadelas por code
-router.get('/search', ciudadelasController.findCiudadelaByCode);
+router.get('/search/code', ciudadelasController.findCiudadelaByCode);
+
+//ciudadelas por ID
+router.get('/:id', ciudadelasController.findCiudadelaById);
 
 module.exports = router;

@@ -6,6 +6,9 @@ const router = express.Router();
 router.post('/signin', userController.iniciarSesion);
 
 //buscar todos usuario por id
-router.get('/:id', userController.findUserById);
+router.get('/user/:id', userController.findUserById);
+
+//nuevo usuario
+router.post('/new', userController.newUser);
 
 module.exports = router;

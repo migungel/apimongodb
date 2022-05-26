@@ -11,6 +11,7 @@ const visitanteSchema = new Schema({
     salida: Date,
     state: Boolean,
 },{
+    versionKey: false,
     timestamps: true
 });
 

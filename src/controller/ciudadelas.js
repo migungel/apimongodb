@@ -8,6 +8,13 @@ const findAllCiudadelas = (req, res)=>{
     });
 };
 
+const findCiudadelaById = (req, res) =>{
+    Ciudadelas.findById(req.params.id, (err, ciudadela)=>{
+        err && res.status(500).send(err.message);
+        res.status(200).json(ciudadela);
+    });
+};
+
 //Ciudadelas por codigo (code)
 const findCiudadelaByCode = (req, res)=>{
     const code = req.query.code;
@@ -18,4 +25,4 @@ const findCiudadelaByCode = (req, res)=>{
     });
 };
 
-module.exports = {findAllCiudadelas, findCiudadelaByCode};
+module.exports = {findAllCiudadelas, findCiudadelaByCode, findCiudadelaById};

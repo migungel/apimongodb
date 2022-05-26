@@ -1,6 +1,26 @@
 const Guardias = require('../models/Guardias');
 
 //guardias
+const newGuard = async (req, res)=>{
+    const {name, cedula, celular, user, pass, role, ciudadela, etapa} = req.body;
+    const guardIn = await Guardias.findOne({ user });
+    if(guardIn) return res.status(401).send("Residente exists");
+    const newGuard = new Guardias({name, cedula, celular, user, pass, role, ciudadela, etapa});
+    await newGuard.save();
+    res.status(200).json({newGuard});
+};
+
+const updateGuard = (req, res)=>{
+    let guardid = req.params.id;
+    let update = req.body;
+    Guardias.findByIdAndUpdate(guardid, update, (err, guard) =>{
+        if(err) err.status(500).send({message: `Error al actualizar el usuario: ${err}`});
+
+        res.status(200).json({guard});
+    });
+};
+
+//guardias
 const findAllGuardias = (req, res)=>{
     Guardias.find((err, guard)=>{
         err && res.status(500).send(err.message);
@@ -39,4 +59,11 @@ const findGuardByName = (req, res) => {
     });
 };
 
-module.exports = {findAllGuardias, findGuardById, deleteGuardia, findGuardByName};
+module.exports = {
+    newGuard,
+    findAllGuardias,
+    findGuardById,
+    deleteGuardia,
+    findGuardByName,
+    updateGuard,
+};

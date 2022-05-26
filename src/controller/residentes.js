@@ -2,13 +2,13 @@
 const Residente = require('../models/Residentes');
 
 //actualizar residente
-const actualizaResi = (req, res)=>{
+const updateResi = (req, res)=>{
     let residenteid = req.params.id;
     let update = req.body;
     Residente.findByIdAndUpdate(residenteid, update, (err, resiUpdate) =>{
         if(err) err.status(500).send({message: `Error al actualizar el usuario: ${err}`});
 
-        res.status(200).json({user: resiUpdate});
+        res.status(200).json({resiUpdate});
     });
 };
 
@@ -42,15 +42,15 @@ const deleteResidente = (req, res)=>{
 };
 
 //Busqueda por ci
-const findResidenteByCi = (req, res) => {
-    const ci = req.query.ci;
-    //console.log(ci);
-    var condition = ci ? { ci: { $regex: new RegExp(ci), $options: "i" } } : {};
-    Residente.find(condition, (err, resi)=>{
-        err && res.status(500).send(err.message);
-        res.status(200).json(resi);
-    });
-};
+//const findResidenteByCi = (req, res) => {
+//    const ci = req.query.ci;
+//    //console.log(ci);
+//    var condition = ci ? { ci: { $regex: new RegExp(ci), $options: "i" } } : {};
+//    Residente.find(condition, (err, resi)=>{
+//        err && res.status(500).send(err.message);
+//        res.status(200).json(resi);
+//    });
+//};
 
 //Busqueda usuario por nombre
 const findResiByName = (req, res) => {
@@ -63,4 +63,21 @@ const findResiByName = (req, res) => {
     });
 };
 
-module.exports = {actualizaResi, findAllResidentes, findResiById, deleteResidente, findResidenteByCi, findResiByName};
+const newResidente = async (req, res) => {
+    const { user, pass, role, ciudadela, villa, name, celular, cedula, etapa} = req.body;
+    const resiIn = await Residente.findOne({ user });
+    if(resiIn) return res.status(401).send("Residente exists");
+    const newResi = new Residente({user, pass, role, ciudadela, villa, name, celular, cedula, etapa});
+    await newResi.save();
+    res.status(200).json({newResi});
+}
+
+module.exports = {
+    updateResi,
+    findAllResidentes,
+    findResiById,
+    deleteResidente,
+    //findResidenteByCi,
+    findResiByName,
+    newResidente,
+};

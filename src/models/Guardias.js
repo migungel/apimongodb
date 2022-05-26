@@ -3,13 +3,15 @@ const Schema = mongoose.Schema;
 
 const guardiasSchemas = new Schema({
     name: String,
+    cedula: String,
+    celular: String,
     user: String,
-    ci: String,
-    ciudadela: String,
-    etapa: String,
     pass: String,
     role: String,
+    ciudadela: String,
+    etapa: String,
 },{
+    versionKey: false,
     timestamps: true
 });
 

@@ -8,6 +8,14 @@ const findAllEtapas = (req, res)=>{
     });
 };
 
+//etapas por id
+const findEtapasById = (req, res)=>{
+    Etapas.findById(req.params.id, (err, etapa)=>{
+        err && res.status(500).send(err.message);
+        res.status(200).json(etapa);
+    });
+};
+
 //Etapas por ciudadela
 const findEtapasByCiudadela = (req, res) => {
     const ciudadela = req.query.ciudadela;
@@ -19,12 +27,24 @@ const findEtapasByCiudadela = (req, res) => {
 };
 
 //registrar etapas
-const registerEtapas = async (req, res) =>{
-    const { name, code } = req.body;
-    const etapaIn = await Etapas.findOne({ code });
+const newEtapa = async (req, res) =>{
+    const { name, ciudadela } = req.body;
+    const etapaIn = await Etapas.findOne({ name });
     if(etapaIn) return res.status(401).send("Exists");
-    const newEtapa = new Etapa({ name, code, id_ciudadela});
+    const newEtapa = new Etapas({ name, ciudadela});
     await newEtapa.save();
+    res.status(200).json({newEtapa});
 };
 
-module.exports = { findAllEtapas, findEtapasByCiudadela, registerEtapas };
+//buscar etapas por nombre
+const findEtapasByName = (req, res) => {
+    const name = req.query.name;
+    console.log(name);
+    var condition = name ? { name: { $regex: new RegExp(name), $options: "i" } } : {};
+    Etapas.find(condition, (err, eta)=>{
+        err && res.status(500).send(err.message);
+        res.status(200).json(eta);
+    });
+}
+
+module.exports = { findAllEtapas, findEtapasByCiudadela, newEtapa, findEtapasById, findEtapasByName };

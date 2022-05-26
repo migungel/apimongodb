@@ -3,12 +3,18 @@ const express = require('express');
 const router = express.Router();
 
 //registrar etapa
-router.post('/registrar', etapasController.registerEtapas);
+router.post('/new', etapasController.newEtapa);
 
 //todas las etapas
 router.get('/all', etapasController.findAllEtapas);
 
+//etapas por nombre
+router.get('/name', etapasController.findEtapasByName);
+
 //etapa por ciudadela
-router.get('/search', etapasController.findEtapasByCiudadela);
+router.get('/ciudadela', etapasController.findEtapasByCiudadela);
+
+//todas las etapas
+router.get('/:id', etapasController.findEtapasById);
 
 module.exports = router;

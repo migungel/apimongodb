@@ -2,11 +2,11 @@ const residenteController = require("../controller/residentes");
 const express = require("express");
 const router = express.Router();
 
-//actualizar residente
-router.put('/:id', residenteController.actualizaResi);
-
 //todos los residentes
 router.get('/all', residenteController.findAllResidentes);
+
+//crear residente
+router.post('/new', residenteController.newResidente);
 
 //residente por id
 router.get('/:id', residenteController.findResiById);
@@ -17,7 +17,7 @@ router.delete('/:id', residenteController.deleteResidente);
 //buscar por residente por nombre
 router.get('/search/name', residenteController.findResiByName);
 
-//buscar por residente por ci
-router.get('/search/ci', residenteController.findResidenteByCi);
+//actualizar residente
+router.put('/:id', residenteController.updateResi);
 
 module.exports = router;

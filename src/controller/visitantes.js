@@ -40,15 +40,15 @@ const findVisitByName = (req, res) => {
 };
 
 //actualizar visitante
-const updateVisit = (req, res)=>{
-    let visitanteid = req.params.id;
-    let update = req.body;
-    Visitantes.findByIdAndUpdate(visitanteid, update, (err, visitUpdate) =>{
-        if(err) err.status(500).send({message: `Error al actualizar el visitante: ${err}`});
-
-        res.status(200).json({user: visitUpdate});
-    });
-};
+//const updateVisit = (req, res)=>{
+//    let visitanteid = req.params.id;
+//    let update = req.body;
+//    Visitantes.findByIdAndUpdate(visitanteid, update, (err, visitUpdate) =>{
+//        if(err) err.status(500).send({message: `Error al actualizar el visitante: ${err}`});
+//
+//        res.status(200).json({user: visitUpdate});
+//    });
+//};
 
 //registrar visitante
 const createVisit = async (req, res) =>{
@@ -63,11 +63,24 @@ const createVisit = async (req, res) =>{
     res.status(200).json({ idVisit });
 };
 
+//actualizar estado visita
+const updateState = (req, res)=>{
+    let visitaid = req.params.id;
+    let update = req.body;
+    console.log(update);
+    Visitantes.findByIdAndUpdate(visitaid, update, (err, visitUpdate) =>{
+        if(err) err.status(500).send({message: `Error al actualizar el estado de la visita: ${err}`});
+
+        res.status(200).json({visitUpdate});
+    });
+};
+
 module.exports = {
     findAllVisitantes,
     findVisitorById,
     deleteVisitante,
     findVisitByName,
-    updateVisit,
-    createVisit
+    //updateVisit,
+    createVisit,
+    updateState,
 };

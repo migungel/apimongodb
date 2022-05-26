@@ -3,9 +3,10 @@ const Schema = mongoose.Schema;
 
 const etapasSchemas = new Schema({
     name: String,
-    code: String,
+    //code: String,
     ciudadela: String,
 },{
+    versionKey: false,
     timestamps: true
 });
 

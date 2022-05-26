@@ -5,6 +5,7 @@ const ciudadelasSchemas = new Schema({
     name: String,
     code: String,
 },{
+    versionKey: false,
     timestamps: true
 });
 

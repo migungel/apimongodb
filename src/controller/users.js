@@ -34,4 +34,18 @@ const findUserById = async (req, res)=>{
     res.status(200).json(userIn);
 };
 
-module.exports = {iniciarSesion, findUserById};
+const newUser = async (req, res) => {
+    const {user} = req.body;
+    console.log(req.body);
+    //const { user} = req.body;
+    const residenteIn = await Residentes.findOne({ user });
+    const guardiaIn = await Guardias.findOne({ user });
+    const adminIn = await Admins.findOne({ user });
+    //console.log(adminIn);
+    if(residenteIn) return res.status(401).send("Residente exists");
+    if(guardiaIn) return res.status(401).send("Guardia exists");
+    if(adminIn) return res.status(401).send("Admin exists");
+    res.status(200).send('usuario no existe');
+};
+
+module.exports = {iniciarSesion, findUserById, newUser};

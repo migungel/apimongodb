@@ -18,6 +18,9 @@ router.delete('/:id', visitanteController.deleteVisitante);
 router.get('/search/name', visitanteController.findVisitByName);
 
 //actualizarr visitante
-router.put('/:id', visitanteController.updateVisit);
+//router.put('/:id', visitanteController.updateVisit);
+
+//actualizar estado visitante
+router.put('/:id', visitanteController.updateState);
 
 module.exports = router;
