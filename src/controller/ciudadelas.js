@@ -15,14 +15,19 @@ const findCiudadelaById = (req, res) =>{
     });
 };
 
-//Ciudadelas por codigo (code)
-const findCiudadelaByCode = (req, res)=>{
-    const code = req.query.code;
-    var condition = code ? { code: { $regex: new RegExp(code), $options: "i" } } : {};
-    Ciudadelas.find(condition, (err, ciudadela)=>{
-        err && res.status(500).send(err.message);
-        res.status(200).json(ciudadela);
-    });
-};
+const newCiudadela = async (req, res) => {
+    const { name } = req.body;
+    const ciudIn = await Ciudadelas.findOne({ name });
+    if(ciudIn) {//return res.status(401).send("Ciudadela exists");
+        return res.send("Ciudadela exists");
+    }
+    const newCiud = new Ciudadelas({name});
+    await newCiud.save();
+    res.status(200).json({newCiud});
+}
 
-module.exports = {findAllCiudadelas, findCiudadelaByCode, findCiudadelaById};
+module.exports = {
+  findAllCiudadelas,
+  findCiudadelaById,
+  newCiudadela
+};

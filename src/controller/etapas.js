@@ -30,7 +30,9 @@ const findEtapasByCiudadela = (req, res) => {
 const newEtapa = async (req, res) =>{
     const { name, ciudadela } = req.body;
     const etapaIn = await Etapas.findOne({ name });
-    if(etapaIn) return res.status(401).send("Exists");
+    if(etapaIn) {//return res.status(401).send("Exists");
+        return res.send("Exists");
+    }
     const newEtapa = new Etapas({ name, ciudadela});
     await newEtapa.save();
     res.status(200).json({newEtapa});
@@ -47,4 +49,24 @@ const findEtapasByName = (req, res) => {
     });
 }
 
-module.exports = { findAllEtapas, findEtapasByCiudadela, newEtapa, findEtapasById, findEtapasByName };
+//Delete etapa
+const deleteEtapa = (req, res)=>{
+    let id = req.params.id;
+    Etapas.findById(id, (err, etapa)=>{
+        if(err) err.status(500).send({message: `Error al borrar la etapa: ${err}`});
+
+        etapa.remove(err => {
+            if (err) err.status(500).send({message: `Error al borrar la etapa: ${err}`});
+            res.status(200).send({message: 'La etapa ha sido eliminado'})
+        })
+    });
+};
+
+module.exports = {
+    findAllEtapas,
+    findEtapasByCiudadela,
+    newEtapa,
+    findEtapasById,
+    findEtapasByName,
+    deleteEtapa
+};

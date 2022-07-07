@@ -2,6 +2,8 @@ const adminController = require('../controller/admins');
 const express = require("express");
 const router = express.Router();
 
+router.post('/page', adminController.byPage);
+
 //todos los admin
 router.get('/all', adminController.findAllAdmins);
 
@@ -9,7 +11,7 @@ router.get('/all', adminController.findAllAdmins);
 router.post('/new', adminController.newAdmin);
 
 //actualizar admin
-router.put('/:id', adminController.actualizaAdmin);
+router.put('/:id', adminController.updateAdmin);
 
 //admin por id
 router.get('/:id', adminController.findAdminById);

@@ -1,7 +1,25 @@
 const Admins = require('../models/Admins');
+const { encrypt } = require('../helper/handleCrypt');
+
+const byPage = (req, res)=>{
+  const {name, ciudadela} = req.body;
+  let query={};
+    if(name){
+        query.name={ $regex: new RegExp(name), $options: "i" }
+    }
+  const options = {
+    page: req.query.page || 1,
+    limit: req.query.limit || 4
+  }
+  Admins.paginate(query, options, (err, resi)=>{
+    res.status(200).json({
+      items: resi
+    })
+  });
+}
 
 //actualizar residente
-const actualizaAdmin = (req, res)=>{
+const updateAdmin = (req, res)=>{
     let adminid = req.params.id;
     let update = req.body;
     Admins.findByIdAndUpdate(adminid, update, (err, admin) =>{
@@ -55,10 +73,13 @@ const findAdminByName = (req, res) => {
 const newAdmin = async (req, res) =>{
     const { name, user, pass, role, cedula, celular, ciudadelasCargo} = req.body;
     const adminIn = await Admins.findOne({ user });
-    if(adminIn) return res.status(401).send("User exists");
-    const newAdmin = new Admins({name, user, pass, role, cedula, celular, ciudadelasCargo });
+    if(adminIn) {//return res.status(401).send("Admin exists");
+        return res.send("Admin exists");
+    }
+  const passHash = await encrypt(pass);
+    const newAdmin = new Admins({name, user, pass:passHash, role, cedula, celular, ciudadelasCargo });
     await newAdmin.save();
     res.status(200).json({newAdmin});
 };
 
-module.exports = {actualizaAdmin, findAllAdmins, findAdminById, deleteAdmin, findAdminByName, newAdmin};
+module.exports = {updateAdmin, findAllAdmins, findAdminById, deleteAdmin, findAdminByName, newAdmin, byPage};

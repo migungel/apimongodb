@@ -20,10 +20,10 @@ const findVisitorById = (req, res)=>{
 const deleteVisitante = (req, res)=>{
     let id = req.params.id;
     Visitantes.findById(id, (err, visit)=>{
-        if(err) err.status(500).send({message: `Error al borrar al visitante: ${err}`});
+        if(err) res.status(500).send({message: `Error al borrar al visitante: ${err}`});
 
-        visit.remove(err => {
-            if (err) err.status(500).send({message: `Error al borrar al visitante: ${err}`});
+        visit.remove(error => {
+            if (error) res.status(500).send({message: `Error al borrar al visitante: ${error}`});
             res.status(200).send({message: 'El visitante ha sido eliminado'})
         })
     });
@@ -39,39 +39,100 @@ const findVisitByName = (req, res) => {
     });
 };
 
-//actualizar visitante
-//const updateVisit = (req, res)=>{
-//    let visitanteid = req.params.id;
-//    let update = req.body;
-//    Visitantes.findByIdAndUpdate(visitanteid, update, (err, visitUpdate) =>{
-//        if(err) err.status(500).send({message: `Error al actualizar el visitante: ${err}`});
-//
-//        res.status(200).json({user: visitUpdate});
-//    });
-//};
-
 //registrar visitante
 const createVisit = async (req, res) =>{
-    const {id_residente, name, cedula, celular, placa, ingreso, salida, state} = req.body;
-    //const visitIn = await Visitantes.findOne({ state });
-    //if(userIn) return res.status(401).send("User exists");
-    const newVisit = new Visitantes({id_residente, name, cedula, celular, placa, ingreso, salida, state});
+    const {residente, name, cedula, celular, tipo, placa, ingreso, salida, state, imagePath} = req.body;
+    //console.log('file: ', req.file);
+    //console.log('body: ', req.body);
+    //const newVisit = new Visitantes({residente, name, cedula, celular, tipo, placa, ingreso, salida, state, imagePath: req.file.path});
+    const newVisit = new Visitantes({residente, name, cedula, celular, tipo, placa, ingreso, salida, state, imagePath});
     await newVisit.save();
-    //const token = jwt.sign({ _id: newUser._id }, 'key');
     const idVisit = newVisit._id;
-    //res.status(200).json({token, id})
     res.status(200).json({ idVisit });
+    //res.status(200).json('nice');
 };
 
+//actualizar estado fecha
+//const updateByDate = (req, res)=>{
+//  let visitaid = req.params.id;
+//  let update = req.body;
+//  console.log(update);
+//  Visitantes.findByIdAndUpdate(visitaid, update, (err, visitUpdate) =>{
+//      if(err) err.status(500).send({message: `Error al actualizar el estado de la visita: ${err}`});
+//      res.status(200).json({visitUpdate});
+//  });
+//};
+
 //actualizar estado visita
-const updateState = (req, res)=>{
+const updateExit = (req, res)=>{
     let visitaid = req.params.id;
     let update = req.body;
     console.log(update);
     Visitantes.findByIdAndUpdate(visitaid, update, (err, visitUpdate) =>{
         if(err) err.status(500).send({message: `Error al actualizar el estado de la visita: ${err}`});
-
         res.status(200).json({visitUpdate});
+    });
+};
+
+//actualizar estado, foto visita
+const updateFoto = (req, res)=>{
+  let visitaid = req.params.id;
+  let update = req.body;
+  let imagePath = req.file.path;
+  update['imagePath'] = imagePath;
+  Visitantes.findByIdAndUpdate(visitaid, update, (err, visitUpdate) =>{
+      if(err) err.status(500).send({message: `Error al actualizar el estado de la visita: ${err}`});
+      res.status(200).json({visitUpdate});
+  });
+};
+
+//Busqueda visitante por rango de fecha
+const findVisitByRangeDate = (req, res) => {
+  const options = {
+    page: req.query.page || 1,
+    limit: req.query.limit || 4
+  }
+  let query = {}
+  const {residente, residenteArray} = req.body;
+  if(residente){
+    query.residente={ $regex: new RegExp(residente), $options: "i" }
+    }
+  if(residenteArray){
+    query.residente={ "$regex": residenteArray.join("|"), "$options": "i" }
+    }
+  var startDate = req.body.startDate+"T00:00:00.000Z";
+  var endDate = req.body.endDate+"T23:59:59.000Z";
+  query.createdAt = {
+                $gte: new Date(startDate).toISOString(),
+                $lte: new Date(endDate).toISOString()
+            }
+  //console.log(query)
+  Visitantes.paginate(query, options, (err, visit)=>{
+    res.status(200).json({
+      items: visit
+    })
+  });
+  
+  //Visitantes.
+    //find({
+      //      createdAt: {
+      //          $gte: new Date(startDate).toISOString(),
+      //          $lte: new Date(endDate).toISOString()
+      //      }
+      //  })
+      //  .exec(function (err, data) {
+      //      if (err) return console.log(err);
+      //      res.send(data);
+      //  });
+};
+
+//Busqueda visitante por residente
+const findVisitByResidente = (req, res) => {
+    const residente = req.query.residente;
+    var condition = residente ? { residente: { $regex: new RegExp(residente), $options: "i" } } : {};
+    Visitantes.find(condition, (err, visit)=>{
+        err && res.status(500).send(err.message);
+        res.status(200).json(visit);
     });
 };
 
@@ -80,7 +141,9 @@ module.exports = {
     findVisitorById,
     deleteVisitante,
     findVisitByName,
-    //updateVisit,
     createVisit,
-    updateState,
+    updateExit,
+    updateFoto,
+  findVisitByRangeDate,
+  findVisitByResidente,
 };

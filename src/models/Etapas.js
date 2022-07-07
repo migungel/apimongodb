@@ -2,9 +2,16 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const etapasSchemas = new Schema({
-    name: String,
-    //code: String,
-    ciudadela: String,
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    ciudadela: {
+      type: String,
+      required: true,
+      trim: true,
+    },
 },{
     versionKey: false,
     timestamps: true

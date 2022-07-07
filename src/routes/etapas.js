@@ -17,4 +17,7 @@ router.get('/ciudadela', etapasController.findEtapasByCiudadela);
 //todas las etapas
 router.get('/:id', etapasController.findEtapasById);
 
+//borrar la etapa
+router.delete('/:id', etapasController.deleteEtapa);
+
 module.exports = router;

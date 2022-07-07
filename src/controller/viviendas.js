@@ -11,8 +11,10 @@ const findAllViviendas = async (req, res)=>{
 //crear viviendas
 const newViviendas = async (req, res)=>{
     const {manzana, villa, ciudadela, descripcion, etapa} = req.body
-    const villaIn = await Viviendas.findOne({manzana, villa});
-    if(villaIn) return res.status(401).send("Villa exists");
+    const villaIn = await Viviendas.findOne({manzana, villa, etapa});
+    if(villaIn) {//return res.status(401).send("Villa exists");
+        return res.send("Villa exists");
+    }
     const newVilla = new Viviendas({manzana, villa, ciudadela, descripcion, etapa});
     await newVilla.save();
     res.status(200).json({newVilla});
